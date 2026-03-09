@@ -1,0 +1,34 @@
+# Maven
+target/
+.classpath
+.factorypath
+.project
+.settings/
+*.jars
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Application logs
+*.log
+*.log.gz
+
+# Maven wrapper
+.mvn/wrapper/maven-wrapper.jar
+mvnw
+mvnw.cmd

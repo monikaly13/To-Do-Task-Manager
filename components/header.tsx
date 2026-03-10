@@ -23,7 +23,14 @@ export function Header({ stats }: HeaderProps) {
         <div className="flex flex-col gap-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-bold tracking-tight text-foreground">Task Manager</h1>
+              <div className="flex items-center gap-3">
+                <img
+                  src="/logo.png"
+                  alt="To-Do-Soon logo"
+                  className="h-10 w-auto"
+                />
+                <h1 className="text-4xl font-bold tracking-tight text-foreground">To-Do-Soon</h1>
+              </div>
               <p className="text-muted-foreground mt-2">
                 Stay organized and track your progress
               </p>

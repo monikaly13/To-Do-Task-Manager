@@ -8,6 +8,7 @@ import { Header } from '@/components/header';
 import { AuthForm } from '@/components/auth-form';
 import { taskApi } from '@/lib/api';
 import { useAuth } from '@/context/auth-context';
+import { CountdownTimer } from '@/components/countdown-timer';
 
 export type Task = {
   id: number;
@@ -101,6 +102,15 @@ export default function Home() {
     done: tasks.filter((t) => t.status === 'done').length,
   };
 
+  const nextDueTask = tasks
+    .filter((t) => t.dueDate && t.status !== 'done')
+    .map((t) => ({
+      ...t,
+      dueTime: new Date(t.dueDate as string).getTime(),
+    }))
+    .filter((t) => t.dueTime > Date.now())
+    .sort((a, b) => a.dueTime - b.dueTime)[0];
+
   useEffect(() => {
     if (isLoggedIn) loadCompletedThisMonth();
   }, [isLoggedIn, tasks]);
@@ -136,6 +146,12 @@ export default function Home() {
               <TaskForm onAddTask={handleAddTask} />
             </div>
             <div className="lg:col-span-2 space-y-6">
+              {nextDueTask && nextDueTask.dueDate && (
+                <CountdownTimer
+                  targetDate={nextDueTask.dueDate}
+                  label={nextDueTask.title}
+                />
+              )}
               <TaskFilters
                 filterStatus={filterStatus}
                 setFilterStatus={setFilterStatus}

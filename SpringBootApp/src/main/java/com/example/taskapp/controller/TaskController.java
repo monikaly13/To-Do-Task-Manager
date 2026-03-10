@@ -64,11 +64,11 @@ public class TaskController {
         return taskRepository.findById(id)
                 .filter(task -> task.getUserId().equals(userId))
                 .map(task -> {
-                    task.setTitle(taskDetails.getTitle());
-                    task.setDescription(taskDetails.getDescription());
-                    task.setStatus(taskDetails.getStatus());
-                    task.setCategory(taskDetails.getCategory());
-                    task.setDueDate(taskDetails.getDueDate());
+                    if (taskDetails.getTitle() != null) task.setTitle(taskDetails.getTitle());
+                    if (taskDetails.getDescription() != null) task.setDescription(taskDetails.getDescription());
+                    if (taskDetails.getStatus() != null) task.setStatus(taskDetails.getStatus());
+                    if (taskDetails.getCategory() != null) task.setCategory(taskDetails.getCategory());
+                    if (taskDetails.getDueDate() != null) task.setDueDate(taskDetails.getDueDate());
                     return ResponseEntity.ok(taskRepository.save(task));
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -84,7 +84,7 @@ public class TaskController {
                 .filter(task -> task.getUserId().equals(userId))
                 .map(task -> {
                     taskRepository.delete(task);
-                    return ResponseEntity.<Void>ok().build();
+                    return ResponseEntity.ok().build();
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

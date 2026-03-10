@@ -26,6 +26,18 @@ export default function Home() {
   const [filterStatus, setFilterStatus] = useState<'all' | 'todo' | 'in-progress' | 'done'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
+  const sortTasksByDate = (items: Task[]) => {
+    return [...items].sort((a, b) => {
+      const aDue = a.dueDate ? new Date(a.dueDate).getTime() : Number.POSITIVE_INFINITY;
+      const bDue = b.dueDate ? new Date(b.dueDate).getTime() : Number.POSITIVE_INFINITY;
+      if (aDue !== bDue) return aDue - bDue; // earlier due dates first, no-due last
+
+      const aCreated = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bCreated = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bCreated - aCreated; // newest created first as tie-breaker
+    });
+  };
+
   useEffect(() => {
     if (isLoggedIn) {
       loadTasks();
@@ -37,14 +49,14 @@ export default function Home() {
   const loadTasks = async () => {
     setLoading(true);
     const data = await taskApi.getAllTasks();
-    setTasks(data);
+    setTasks(sortTasksByDate(data));
     setLoading(false);
   };
 
   const handleAddTask = async (task: Omit<Task, 'id' | 'createdAt'>) => {
     const newTask = await taskApi.createTask(task);
     if (newTask) {
-      setTasks([newTask, ...tasks]);
+      setTasks((prev) => sortTasksByDate([newTask, ...prev]));
     }
   };
 
@@ -58,7 +70,7 @@ export default function Home() {
   const handleUpdateTask = async (id: number, updates: Partial<Task>) => {
     const updated = await taskApi.updateTask(id, updates);
     if (updated) {
-      setTasks(tasks.map((task) => (task.id === id ? updated : task)));
+      setTasks((prev) => sortTasksByDate(prev.map((task) => (task.id === id ? updated : task))));
     }
   };
 

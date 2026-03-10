@@ -109,6 +109,20 @@ export function TaskCard({ task, onDelete, onUpdateTask }: TaskCardProps) {
 
   const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== 'done';
 
+  const getCategoryStyles = (category?: string) => {
+    switch (category) {
+      case 'Priority':
+        return 'bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/30';
+      case 'Urgent':
+        return 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/30';
+      case 'Important':
+        return 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30';
+      case 'Normal':
+      default:
+        return 'bg-secondary/30 text-muted-foreground border border-border';
+    }
+  };
+
   return (
     <div
       className={`group p-4 rounded-lg border transition-all hover:shadow-md ${
@@ -207,9 +221,13 @@ export function TaskCard({ task, onDelete, onUpdateTask }: TaskCardProps) {
           {/* Metadata */}
           <div className="flex flex-wrap items-center gap-3 mt-3 text-xs">
             {/* Category */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-secondary/30 rounded-md">
-              <Tag className="w-3 h-3 text-muted-foreground" />
-              <span className="text-muted-foreground">{task.category}</span>
+            <div
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md ${getCategoryStyles(
+                task.category
+              )}`}
+            >
+              <Tag className="w-3 h-3" />
+              <span>{task.category}</span>
             </div>
 
             {/* Due Date */}

@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle2, Circle, CircleDashed, LogOut } from 'lucide-react';
+import { CheckCircle2, Circle, CircleDashed, CalendarCheck2, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
 
@@ -10,6 +10,7 @@ interface HeaderProps {
     todo: number;
     inProgress: number;
     done: number;
+    completedThisMonth: number;
   };
 }
 
@@ -37,7 +38,7 @@ export function Header({ stats }: HeaderProps) {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/20 border border-border">
               <Circle className="w-5 h-5 text-primary" />
               <div>
@@ -64,6 +65,13 @@ export function Header({ stats }: HeaderProps) {
               <div>
                 <p className="text-xs text-muted-foreground">Completed</p>
                 <p className="text-2xl font-semibold text-foreground">{stats.done}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
+              <CalendarCheck2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              <div>
+                <p className="text-xs text-muted-foreground">Completed (This Month)</p>
+                <p className="text-2xl font-semibold text-foreground">{stats.completedThisMonth}</p>
               </div>
             </div>
           </div>

@@ -6,6 +6,7 @@ export interface Task {
   category: string;
   createdAt: string;
   dueDate?: string;
+  completedAt?: string;
 }
 
 export interface CreateTaskRequest {

@@ -17,6 +17,7 @@ export type Task = {
   category: string;
   createdAt: string;
   dueDate?: string;
+  completedAt?: string;
 };
 
 export default function Home() {
@@ -25,6 +26,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<'all' | 'todo' | 'in-progress' | 'done'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [completedThisMonth, setCompletedThisMonth] = useState(0);
 
   const sortTasksByDate = (items: Task[]) => {
     return [...items].sort((a, b) => {
@@ -51,6 +53,17 @@ export default function Home() {
     const data = await taskApi.getAllTasks();
     setTasks(sortTasksByDate(data));
     setLoading(false);
+  };
+
+  const loadCompletedThisMonth = async () => {
+    try {
+      const res = await fetch('/api/tasks/stats/completed-this-month', { credentials: 'include' });
+      if (!res.ok) return;
+      const count = await res.json();
+      setCompletedThisMonth(Number(count) || 0);
+    } catch {
+      // ignore (non-critical stat)
+    }
   };
 
   const handleAddTask = async (task: Omit<Task, 'id' | 'createdAt'>) => {
@@ -88,6 +101,10 @@ export default function Home() {
     done: tasks.filter((t) => t.status === 'done').length,
   };
 
+  useEffect(() => {
+    if (isLoggedIn) loadCompletedThisMonth();
+  }, [isLoggedIn, tasks]);
+
   if (isLoading || !isLoggedIn) {
     if (isLoading) {
       return (
@@ -104,7 +121,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/5">
-      <Header stats={stats} />
+      <Header stats={{ ...stats, completedThisMonth }} />
       <main className="container mx-auto px-4 py-12">
         {loading ? (
           <div className="flex justify-center items-center h-96">

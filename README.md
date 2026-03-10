@@ -1,8 +1,25 @@
-## Spring Boot Task Management App called To-Do-Soon
+## Spring Boot Task Management App – To-Do-Soon
 
-Project: To-Do-Soon
+Project: **To-Do-Soon**
 
 A Spring Boot backend that powers a Next.js Task Management frontend. This service exposes a REST API for creating, reading, updating, and deleting tasks, and also serves the statically exported Next.js frontend.
+
+---
+
+### Tech Stack
+
+- **Backend**: Java, Spring Boot, Spring Web, Spring Data JPA
+- **Frontend**: Next.js (statically exported), React, TypeScript (optional)
+- **Database**: H2 in-memory (development)
+- **Build & Tools**: Maven, pnpm, IntelliJ IDEA
+- **Hosting**: Railway (Java service)
+
+---
+
+### Live Deployment
+
+- **Production URL (Railway)**: `https://your-railway-app-url.up.railway.app`  
+  Replace this with your actual Railway deployment URL.
 
 ---
 
@@ -50,6 +67,8 @@ SpringBootApp/
 ---
 
 ### Getting Started
+
+This is the **quick local setup** for development.
 
 #### 1. Build and export the Next.js frontend
 
@@ -123,6 +142,40 @@ mvn spring-boot:run
 
 ---
 
+### Deploying to Railway (Backend)
+
+This section describes a **typical** Railway deployment for the Spring Boot backend (your exact setup may vary slightly).
+
+1. **Build the JAR locally**
+   ```bash
+   mvn clean package
+   ```
+   This produces `target/SpringBootApp-<version>.jar`.
+
+2. **Ensure static frontend assets are included**
+   - Before building, make sure the exported Next.js files are in `src/main/resources/static/` so they are packaged into the JAR.
+
+3. **Create a new Railway project**
+   - In Railway, create a **New Project** → **Deploy from GitHub repo** containing this Spring Boot project.
+
+4. **Set Railway build & start commands (if needed)**
+   - Build command (default Maven):
+     ```bash
+     mvn clean package
+     ```
+   - Start command:
+     ```bash
+     java -jar target/SpringBootApp-<version>.jar
+     ```
+
+5. **Configure environment variables (optional)**
+   - For example, to override port or DB connection:
+     - `SERVER_PORT` (or use `server.port` in `application.properties`)
+     - JDBC URL and credentials if you switch from H2 to a managed DB.
+
+6. **Get the public URL**
+   - After Railway deploys successfully, copy the public URL and update the **Live Deployment** section above.
+
 ### Accessing the Application
 
 - **Frontend**: `http://localhost:8080`
@@ -178,6 +231,27 @@ To switch to another database (e.g., MySQL, PostgreSQL):
 1. **Add the JDBC driver** dependency to `pom.xml`.
 2. **Update** `spring.datasource.*` properties in `application.properties`.
 3. **Adjust** `spring.jpa.hibernate.ddl-auto` to match your migration strategy (e.g., `validate`, `update`, or use Flyway/Liquibase).
+
+---
+
+### Database Structure
+
+The core domain model is a single `tasks` table used by the `Task` entity.
+
+```text
++-------------------------+
+|         tasks           |
++-------------------------+
+| id           (BIGINT)   |  PK, auto-generated
+| title        (VARCHAR)  |  short task name
+| description  (TEXT)     |  detailed description (optional)
+| completed    (BOOLEAN)  |  default: false
+| created_at   (TIMESTAMP)|  creation time
+| updated_at   (TIMESTAMP)|  last update time
++-------------------------+
+```
+
+If your `Task` entity differs slightly, adjust the column list above to match the actual fields and types.
 
 ---
 

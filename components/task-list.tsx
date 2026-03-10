@@ -28,7 +28,7 @@ export function TaskList({ tasks, onDeleteTask, onUpdateTask }: TaskListProps) {
           key={task.id}
           task={task}
           onDelete={onDeleteTask}
-          onUpdateStatus={(status) => onUpdateTask(task.id, { status })}
+          onUpdateTask={onUpdateTask}
         />
       ))}
     </div>

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus } from 'lucide-react';
+import type { TaskCategory } from '@/lib/api';
 
 interface TaskFormProps {
   onAddTask: (task: {
@@ -11,34 +12,41 @@ interface TaskFormProps {
     description: string;
     status: 'todo' | 'in-progress' | 'done';
     category: string;
-    dueDate?: Date;
+    dueDate?: string;
   }) => void;
 }
 
-const CATEGORIES = ['Design', 'Backend', 'Frontend', 'Documentation', 'Code Review', 'Testing'];
+const CATEGORIES: TaskCategory[] = ['Priority', 'Urgent', 'Important', 'Normal'];
 
 export function TaskForm({ onAddTask }: TaskFormProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState(CATEGORIES[0]);
+  const [category, setCategory] = useState<TaskCategory>(CATEGORIES[0]);
   const [dueDate, setDueDate] = useState('');
+  const [dueTime, setDueTime] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
+
+    let dueDateStr: string | undefined;
+    if (dueDate) {
+      dueDateStr = dueTime ? `${dueDate}T${dueTime}:00` : `${dueDate}T23:59:59`;
+    }
 
     onAddTask({
       title: title.trim(),
       description: description.trim(),
       status: 'todo',
       category,
-      dueDate: dueDate ? new Date(dueDate) : undefined,
+      dueDate: dueDateStr,
     });
 
     setTitle('');
     setDescription('');
     setCategory(CATEGORIES[0]);
     setDueDate('');
+    setDueTime('');
   };
 
   return (
@@ -78,7 +86,7 @@ export function TaskForm({ onAddTask }: TaskFormProps) {
             </label>
             <select
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={(e) => setCategory(e.target.value as TaskCategory)}
               className="w-full px-3 py-2 rounded-lg bg-secondary/30 border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
             >
               {CATEGORIES.map((cat) => (
@@ -89,16 +97,29 @@ export function TaskForm({ onAddTask }: TaskFormProps) {
             </select>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
-              Due Date (Optional)
-            </label>
-            <Input
-              type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              className="bg-secondary/30 border-border"
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Due Date (Optional)
+              </label>
+              <Input
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="bg-secondary/30 border-border"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Time (Optional)
+              </label>
+              <Input
+                type="time"
+                value={dueTime}
+                onChange={(e) => setDueTime(e.target.value)}
+                className="bg-secondary/30 border-border"
+              />
+            </div>
           </div>
 
           <Button

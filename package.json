@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:static": "next build && xcopy /E /I /Y out\\* SpringBootApp\\src\\main\\resources\\static\\",
     "start": "next start",
     "lint": "eslint ."
   },

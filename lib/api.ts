@@ -16,13 +16,57 @@ export interface CreateTaskRequest {
   dueDate?: string;
 }
 
+export type TaskCategory = 'Priority' | 'Urgent' | 'Important' | 'Normal';
+
+export interface AuthResponse {
+  success: boolean;
+  message: string;
+  userId?: number;
+  username?: string;
+}
+
+const FETCH_OPTIONS: RequestInit = { credentials: 'include' };
+
 const API_URL = '/api/tasks';
+const AUTH_URL = '/api/auth';
+
+export const authApi = {
+  async login(username: string, password: string): Promise<AuthResponse> {
+    const res = await fetch(`${AUTH_URL}/login`, {
+      ...FETCH_OPTIONS,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    return res.json();
+  },
+  async signup(username: string, password: string): Promise<AuthResponse> {
+    const res = await fetch(`${AUTH_URL}/signup`, {
+      ...FETCH_OPTIONS,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    return res.json();
+  },
+  async logout(): Promise<AuthResponse> {
+    const res = await fetch(`${AUTH_URL}/logout`, {
+      ...FETCH_OPTIONS,
+      method: 'POST',
+    });
+    return res.json();
+  },
+  async me(): Promise<AuthResponse> {
+    const res = await fetch(`${AUTH_URL}/me`, FETCH_OPTIONS);
+    return res.json();
+  },
+};
 
 export const taskApi = {
-  // Get all tasks
   async getAllTasks(): Promise<Task[]> {
     try {
-      const response = await fetch(API_URL);
+      const response = await fetch(API_URL, FETCH_OPTIONS);
+      if (response.status === 401) return [];
       if (!response.ok) throw new Error('Failed to fetch tasks');
       return await response.json();
     } catch (error) {
@@ -31,10 +75,9 @@ export const taskApi = {
     }
   },
 
-  // Get single task
   async getTask(id: number): Promise<Task | null> {
     try {
-      const response = await fetch(`${API_URL}/${id}`);
+      const response = await fetch(`${API_URL}/${id}`, FETCH_OPTIONS);
       if (!response.ok) throw new Error('Failed to fetch task');
       return await response.json();
     } catch (error) {
@@ -43,14 +86,12 @@ export const taskApi = {
     }
   },
 
-  // Create task
   async createTask(task: CreateTaskRequest): Promise<Task | null> {
     try {
       const response = await fetch(API_URL, {
+        ...FETCH_OPTIONS,
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(task),
       });
       if (!response.ok) throw new Error('Failed to create task');
@@ -61,14 +102,12 @@ export const taskApi = {
     }
   },
 
-  // Update task
   async updateTask(id: number, task: Partial<CreateTaskRequest>): Promise<Task | null> {
     try {
       const response = await fetch(`${API_URL}/${id}`, {
+        ...FETCH_OPTIONS,
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(task),
       });
       if (!response.ok) throw new Error('Failed to update task');
@@ -79,10 +118,10 @@ export const taskApi = {
     }
   },
 
-  // Delete task
   async deleteTask(id: number): Promise<boolean> {
     try {
       const response = await fetch(`${API_URL}/${id}`, {
+        ...FETCH_OPTIONS,
         method: 'DELETE',
       });
       return response.ok;

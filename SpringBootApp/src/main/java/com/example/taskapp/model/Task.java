@@ -12,6 +12,9 @@ public class Task {
     private Long id;
 
     @Column(nullable = false)
+    private Long userId;
+
+    @Column(nullable = false)
     private String title;
 
     @Column(length = 500)
@@ -36,7 +39,8 @@ public class Task {
     public Task() {
     }
 
-    public Task(String title, String description, String category) {
+    public Task(Long userId, String title, String description, String category) {
+        this.userId = userId;
         this.title = title;
         this.description = description;
         this.category = category;
@@ -50,6 +54,14 @@ public class Task {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getTitle() {

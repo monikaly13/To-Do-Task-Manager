@@ -7,6 +7,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
 public class TaskManagementApplication {
@@ -16,11 +17,15 @@ public class TaskManagementApplication {
     }
 
     @Bean
-    public CommandLineRunner initAdminUser(UserRepository userRepository) {
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public CommandLineRunner initAdminUser(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
             if (userRepository.findByUsername("admin").isEmpty()) {
-                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-                String passwordHash = encoder.encode("admin12345");
+                String passwordHash = passwordEncoder.encode("admin12345");
                 User admin = new User("admin", passwordHash);
                 admin.setRole("ADMIN");
                 userRepository.save(admin);

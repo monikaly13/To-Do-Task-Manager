@@ -1,16 +1,62 @@
 'use client';
 
+import { useState } from 'react';
 import { Task } from '@/app/page';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Circle, Trash2, Calendar, Tag } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { CheckCircle2, Circle, Trash2, Calendar, Tag, Pencil } from 'lucide-react';
+import type { TaskCategory } from '@/lib/api';
+
+const CATEGORIES: TaskCategory[] = ['Priority', 'Urgent', 'Important', 'Normal'];
 
 interface TaskCardProps {
   task: Task;
   onDelete: (id: number) => void;
-  onUpdateStatus: (status: 'todo' | 'in-progress' | 'done') => void;
+  onUpdateTask: (id: number, updates: Partial<Task>) => void;
 }
 
-export function TaskCard({ task, onDelete, onUpdateStatus }: TaskCardProps) {
+export function TaskCard({ task, onDelete, onUpdateTask }: TaskCardProps) {
+  const [editOpen, setEditOpen] = useState(false);
+  const [editTitle, setEditTitle] = useState(task.title);
+  const [editDesc, setEditDesc] = useState(task.description ?? '');
+  const [editCategory, setEditCategory] = useState<TaskCategory>(
+    (task.category as TaskCategory) || 'Normal'
+  );
+  const [editDueDate, setEditDueDate] = useState(() => {
+    if (!task.dueDate) return '';
+    const d = new Date(task.dueDate);
+    return d.toISOString().slice(0, 10);
+  });
+  const [editDueTime, setEditDueTime] = useState(() => {
+    if (!task.dueDate) return '';
+    const d = new Date(task.dueDate);
+    const h = d.getHours().toString().padStart(2, '0');
+    const m = d.getMinutes().toString().padStart(2, '0');
+    return `${h}:${m}`;
+  });
+
+  const handleSaveEdit = () => {
+    let dueDateStr: string | undefined;
+    if (editDueDate) {
+      dueDateStr = editDueTime ? `${editDueDate}T${editDueTime}:00` : `${editDueDate}T23:59:59`;
+    }
+    onUpdateTask(task.id, {
+      title: editTitle.trim(),
+      description: editDesc.trim(),
+      category: editCategory,
+      dueDate: dueDateStr,
+    });
+    setEditOpen(false);
+  };
+
+  const onUpdateStatus = (status: Task['status']) => onUpdateTask(task.id, { status });
   const getStatusConfig = (status: Task['status']) => {
     switch (status) {
       case 'todo':
@@ -97,13 +143,65 @@ export function TaskCard({ task, onDelete, onUpdateStatus }: TaskCardProps) {
               )}
             </div>
 
-            {/* Delete Button */}
-            <button
-              onClick={() => onDelete(task.id)}
-              className="flex-shrink-0 p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
+            {/* Edit & Delete */}
+            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Dialog open={editOpen} onOpenChange={(o) => { setEditOpen(o); if (!o) { setEditTitle(task.title); setEditDesc(task.description ?? ''); setEditCategory((task.category as TaskCategory) || 'Normal'); setEditDueDate(task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 10) : ''); setEditDueTime(task.dueDate ? `${new Date(task.dueDate).getHours().toString().padStart(2, '0')}:${new Date(task.dueDate).getMinutes().toString().padStart(2, '0')}` : ''); } }}>
+                <DialogTrigger asChild>
+                  <button className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Edit Task</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 pt-2">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Title</label>
+                      <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Description</label>
+                      <textarea
+                        value={editDesc}
+                        onChange={(e) => setEditDesc(e.target.value)}
+                        rows={3}
+                        className="w-full px-3 py-2 rounded-lg bg-secondary/30 border border-border text-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Category</label>
+                      <select
+                        value={editCategory}
+                        onChange={(e) => setEditCategory(e.target.value as TaskCategory)}
+                        className="w-full px-3 py-2 rounded-lg bg-secondary/30 border border-border text-foreground"
+                      >
+                        {CATEGORIES.map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Due Date</label>
+                        <Input type="date" value={editDueDate} onChange={(e) => setEditDueDate(e.target.value)} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Time</label>
+                        <Input type="time" value={editDueTime} onChange={(e) => setEditDueTime(e.target.value)} />
+                      </div>
+                    </div>
+                    <Button onClick={handleSaveEdit} className="w-full">Save changes</Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+              <button
+                onClick={() => onDelete(task.id)}
+                className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* Metadata */}

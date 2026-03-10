@@ -1,4 +1,8 @@
-import { CheckCircle2, Circle, CircleDashed } from 'lucide-react';
+'use client';
+
+import { CheckCircle2, Circle, CircleDashed, LogOut } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/context/auth-context';
 
 interface HeaderProps {
   stats: {
@@ -10,15 +14,26 @@ interface HeaderProps {
 }
 
 export function Header({ stats }: HeaderProps) {
+  const { username, logout } = useAuth();
+
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-40">
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col gap-6">
-          <div>
-            <h1 className="text-4xl font-bold tracking-tight text-foreground">Task Manager</h1>
-            <p className="text-muted-foreground mt-2">
-              Stay organized and track your progress
-            </p>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h1 className="text-4xl font-bold tracking-tight text-foreground">Task Manager</h1>
+              <p className="text-muted-foreground mt-2">
+                Stay organized and track your progress
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-muted-foreground">Hi, {username}</span>
+              <Button variant="outline" size="sm" onClick={() => logout()}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Log out
+              </Button>
+            </div>
           </div>
 
           {/* Stats */}

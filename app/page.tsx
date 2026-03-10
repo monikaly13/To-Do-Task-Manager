@@ -5,7 +5,9 @@ import { TaskForm } from '@/components/task-form';
 import { TaskList } from '@/components/task-list';
 import { TaskFilters } from '@/components/task-filters';
 import { Header } from '@/components/header';
+import { AuthForm } from '@/components/auth-form';
 import { taskApi } from '@/lib/api';
+import { useAuth } from '@/context/auth-context';
 
 export type Task = {
   id: number;
@@ -18,15 +20,19 @@ export type Task = {
 };
 
 export default function Home() {
+  const { isLoggedIn, isLoading } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<'all' | 'todo' | 'in-progress' | 'done'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Load tasks from API
   useEffect(() => {
-    loadTasks();
-  }, []);
+    if (isLoggedIn) {
+      loadTasks();
+    } else {
+      setLoading(false);
+    }
+  }, [isLoggedIn]);
 
   const loadTasks = async () => {
     setLoading(true);
@@ -59,7 +65,7 @@ export default function Home() {
   const filteredTasks = tasks.filter((task) => {
     const statusMatch = filterStatus === 'all' || task.status === filterStatus;
     const searchMatch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      task.description.toLowerCase().includes(searchQuery.toLowerCase());
+      (task.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
     return statusMatch && searchMatch;
   });
 
@@ -69,6 +75,20 @@ export default function Home() {
     inProgress: tasks.filter((t) => t.status === 'in-progress').length,
     done: tasks.filter((t) => t.status === 'done').length,
   };
+
+  if (isLoading || !isLoggedIn) {
+    if (isLoading) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-secondary/5">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading...</p>
+          </div>
+        </div>
+      );
+    }
+    return <AuthForm />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/5">
@@ -83,12 +103,9 @@ export default function Home() {
           </div>
         ) : (
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Left Column - Form */}
             <div className="lg:col-span-1">
               <TaskForm onAddTask={handleAddTask} />
             </div>
-
-            {/* Right Column - Tasks */}
             <div className="lg:col-span-2 space-y-6">
               <TaskFilters
                 filterStatus={filterStatus}

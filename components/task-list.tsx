@@ -35,7 +35,7 @@ export function TaskList({ tasks, onDeleteTask, onUpdateTask }: TaskListProps) {
       {todayTasks.length > 0 && (
         <section className="space-y-3">
           <div className="flex items-baseline justify-between">
-            <h2 className="text-sm font-semibold text-foreground">Today</h2>
+            <h2 className="text-sm font-semibold text-foreground">To-Do-Soon</h2>
             <span className="text-xs text-muted-foreground">{todayTasks.length}</span>
           </div>
           <div className="space-y-3">

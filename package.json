@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "build:static": "next build && xcopy /E /I /Y out\\* SpringBootApp\\src\\main\\resources\\static\\",
-    "start": "next start",
+    "start": "npx serve@latest out",
     "lint": "eslint ."
   },
   "dependencies": {

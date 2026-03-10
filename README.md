@@ -18,8 +18,7 @@ A Spring Boot backend that powers a Next.js Task Management frontend. This servi
 
 ### Live Deployment
 
-- **Production URL (Railway)**: `https://your-railway-app-url.up.railway.app`  
-  Replace this with your actual Railway deployment URL.
+- **Production URL (Railway)**: `https://to-do-task-manager-production.up.railway.app/`  
 
 ---
 

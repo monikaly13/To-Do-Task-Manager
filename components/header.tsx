@@ -3,6 +3,7 @@
 import { CheckCircle2, Circle, CircleDashed, CalendarCheck2, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 interface HeaderProps {
   stats: {
@@ -37,6 +38,7 @@ export function Header({ stats }: HeaderProps) {
             </div>
             <div className="flex items-center gap-3">
               <span className="text-sm text-muted-foreground">Hi, {username}</span>
+              <ThemeToggle />
               <Button variant="outline" size="sm" onClick={() => logout()}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Log out
